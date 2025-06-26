@@ -3,3 +3,6 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+# # config/routes.yaml
+lexik_jwt_login:
+    path: /api/login_check

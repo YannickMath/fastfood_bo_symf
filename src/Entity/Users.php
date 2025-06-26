@@ -4,23 +4,25 @@ namespace App\Entity;
 
 use App\Repository\UsersRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
-class Users
+class Users implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(length: 255, nullable: false)]
+    private string $username;
 
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    #[ORM\Column(length: 255, unique: true, nullable: false)]
+    private string $email;
 
-    #[ORM\Column(length: 255)]
-    private ?string $password = null;
+    #[ORM\Column(length: 255, nullable: false)]
+    private?string $password;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
@@ -28,7 +30,7 @@ class Users
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column]
+    #[ORM\Column( nullable: true)]
     private ?bool $isAdmin = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -54,14 +56,14 @@ class Users
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getUsername(): ?string
     {
-        return $this->name;
+        return $this->username;
     }
 
-    public function setName(string $name): static
+    public function setUsername(string $name): static
     {
-        $this->name = $name;
+        $this->username = $name;
 
         return $this;
     }
@@ -122,6 +124,49 @@ class Users
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+
+        return $this;
+    }
+    public function getRoles(): array
+    {
+        $roles = ['ROLE_USER'];
+        if ($this->isAdmin) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+        return $roles;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
