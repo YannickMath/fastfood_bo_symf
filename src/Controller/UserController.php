@@ -70,6 +70,29 @@ final class UserController extends AbstractController
         }
     }
 
+    ## Route to login a user
+    #[Route('/api/user/login', methods: ['POST'])]
+    public function login(
+        Request $request,
+        UserService $userService
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $username = $data['username'] ?? '';
+        $password = $data['password'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            return new JsonResponse(['error' => 'Username and password are required'], 400);
+        }
+
+        $user = $userService->loginUser($username, $password);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'Invalid credentials'], 401);
+        }
+
+        return new JsonResponse(['status' => 'Login successful', 'id' => $user->getId()], 200);
+    }
+
     ## Route to delete a user by ID
     #[Route('/api/user/{id}', methods: ['DELETE'])]
     public function deleteUser(int $id, UserService $userService): JsonResponse

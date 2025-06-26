@@ -50,6 +50,21 @@ class UserService
         return $user;
     }
 
+    ## Method to login a user
+    public function loginUser(string $username, string $password): ?Users
+    {
+        $user = $this->usersRepository->findOneBy(['username' => $username]);
+        if (!$user) {
+            return null; // User not found
+        }
+
+        if ($this->passwordEncoder->isPasswordValid($user, $password)) {
+            return $user; // Password is valid
+        }
+
+        return null; // Invalid password
+    }
+
     ## Method to delete a user
     public function deleteUser(Users $user): void
     {
@@ -63,6 +78,7 @@ class UserService
         return $this->usersRepository->findUserById($id);
     }
 
+    ## Method to update a user
     public function getAllUsers(): array
     {
         return $this->usersRepository->findAll();
