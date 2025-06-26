@@ -2,8 +2,9 @@
 
 namespace App\Service;
 
-use App\Dto\UserRegisterDto;
+use App\Dto\User\Input\UserRegisterInputDto;
 use App\Entity\Users;
+use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -11,27 +12,29 @@ class UserService
 {
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordEncoder;
-    private $usersRepository;
+    private UsersRepository $usersRepository;
 
-public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, \App\Repository\UsersRepository $usersRepository)
-{
-    $this->entityManager = $entityManager;
-    $this->passwordEncoder = $passwordEncoder;
-    $this->usersRepository = $usersRepository;
-}
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordEncoder,
+        UsersRepository $usersRepository
+    ) {
+        $this->entityManager = $entityManager;
+        $this->passwordEncoder = $passwordEncoder;
+        $this->usersRepository = $usersRepository;
+    }
 
-public function createUser(UserRegisterDto $dto): Users
+    ## Method to create a new user
+    public function createUser(UserRegisterInputDto $dto): Users
     {
-        // Vérification unicité de l'email
         if (!empty($dto->email)) {
-            $existingUser = $this->entityManager->getRepository(Users::class)->findOneBy(['email' => $dto->email]);
+            $existingUser = $this->usersRepository->findOneBy(['email' => $dto->email]);
             if ($existingUser) {
                 throw new \RuntimeException('Email already exists');
             }
         }
 
-        // Vérification unicité du nom d'utilisateur
-        $existingUser = $this->entityManager->getRepository(Users::class)->findOneBy(['username' => $dto->username]);
+        $existingUser = $this->usersRepository->findOneBy(['username' => $dto->username]);
         if ($existingUser) {
             throw new \RuntimeException('Username already exists');
         }
@@ -40,9 +43,6 @@ public function createUser(UserRegisterDto $dto): Users
         $user->setUsername($dto->username);
         $user->setPassword($this->passwordEncoder->hashPassword($user, $dto->password));
         $user->setEmail($dto->email ?? '');
-        $user->setImage($dto->image);
-        $user->setDescription($dto->description);
-        $user->setIsAdmin($dto->isAdmin ?? false);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -50,49 +50,16 @@ public function createUser(UserRegisterDto $dto): Users
         return $user;
     }
 
-public function deleteUser(Users $user): void
-{
-    $this->entityManager->remove($user);
-    $this->entityManager->flush();
-}
-
-public function updateUser(Users $user, UserRegisterDto $dto): Users
-{
-    // Vérification unicité de l'email
-    if (!empty($dto->email) && $dto->email !== $user->getEmail()) {
-        $existingUser = $this->entityManager->getRepository(Users::class)->findOneBy(['email' => $dto->email]);
-        if ($existingUser) {
-            throw new \RuntimeException('Email already exists');
-        }
+    ## Method to delete a user
+    public function deleteUser(Users $user): void
+    {
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
     }
-
-    // Vérification unicité du nom d'utilisateur
-    if ($dto->username !== $user->getUsername()) {
-        $existingUser = $this->entityManager->getRepository(Users::class)->findOneBy(['username' => $dto->username]);
-        if ($existingUser) {
-            throw new \RuntimeException('Username already exists');
-        }
+    
+    ## Method to find a user by ID
+    public function findUserById(int $id): ?Users
+    {
+        return $this->usersRepository->findUserById($id);
     }
-
-    $user->setUsername($dto->username);
-    if (!empty($dto->password)) {
-        $user->setPassword($this->passwordEncoder->hashPassword($user, $dto->password));
-    }
-    $user->setEmail($dto->email ?? '');
-    $user->setImage($dto->image);
-    $user->setDescription($dto->description);
-    $user->setIsAdmin($dto->isAdmin ?? false);
-
-    $this->entityManager->flush();
-
-    return $user;
-
-}
-
-public function findUserById(int $id): ?Users
-{
-    return $this->usersRepository->findUserById($id);
-}
-
-
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Dto;
+namespace App\Dto\User\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserRegisterDto
+class UserRegisterInputDto
 {
     #[Assert\NotBlank]
     public string $username;
@@ -36,8 +36,6 @@ class UserRegisterDto
         $this->username = $data['username'] ?? '';
         $this->password = $data['password'] ?? '';
         $this->email = $data['email'] ?? null;
-        $this->image = $data['image'] ?? null;
-        $this->description = $data['description'] ?? null;
-        $this->isAdmin = $data['isAdmin'] ?? false;
+
     }
 }

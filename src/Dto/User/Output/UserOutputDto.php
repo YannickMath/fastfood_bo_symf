@@ -1,5 +1,5 @@
 <?php
-namespace App\Dto;
+namespace App\Dto\User\Output;
 
 class UserOutputDto
 {

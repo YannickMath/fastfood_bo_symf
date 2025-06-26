@@ -24,15 +24,6 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: false)]
     private?string $password;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $description = null;
-
-    #[ORM\Column( nullable: true)]
-    private ?bool $isAdmin = null;
-
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -92,55 +83,23 @@ class Users implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(?string $image): static
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): static
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    public function isAdmin(): ?bool
-    {
-        return $this->isAdmin;
-    }
-
-    public function setIsAdmin(bool $isAdmin): static
-    {
-        $this->isAdmin = $isAdmin;
-
-        return $this;
-    }
-    public function getRoles(): array
-    {
-        $roles = ['ROLE_USER'];
-        if ($this->isAdmin) {
-            $roles[] = 'ROLE_ADMIN';
-        }
-        return $roles;
-    }
-
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
     }
 
+    
+    /**
+     * Returns the roles granted to the user.
+     *
+     * @return string[]
+     */
+    public function getRoles(): array
+    {
+        // By default, every user has ROLE_USER
+        return ['ROLE_USER'];
+    }
+    
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
