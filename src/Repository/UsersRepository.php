@@ -40,4 +40,9 @@ class UsersRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findUserById(int $id): ?Users
+    {
+        return $this->find($id);
+    }
 }

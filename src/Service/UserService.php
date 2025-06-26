@@ -11,14 +11,16 @@ class UserService
 {
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordEncoder;
+    private $usersRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder)
-    {
-        $this->entityManager = $entityManager;
-        $this->passwordEncoder = $passwordEncoder;
-    }
+public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, \App\Repository\UsersRepository $usersRepository)
+{
+    $this->entityManager = $entityManager;
+    $this->passwordEncoder = $passwordEncoder;
+    $this->usersRepository = $usersRepository;
+}
 
-     public function createUser(UserRegisterDto $dto): Users
+public function createUser(UserRegisterDto $dto): Users
     {
         // Vérification unicité de l'email
         if (!empty($dto->email)) {
@@ -89,7 +91,8 @@ public function updateUser(Users $user, UserRegisterDto $dto): Users
 
 public function findUserById(int $id): ?Users
 {
-    return $this->entityManager->getRepository(Users::class)->find($id);
+    return $this->usersRepository->findUserById($id);
 }
+
 
 }

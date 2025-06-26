@@ -5,4 +5,4 @@ controllers:
     type: attribute
 # # config/routes.yaml
 lexik_jwt_login:
-    path: /api/login_check
+    path: /api/user/login_check
