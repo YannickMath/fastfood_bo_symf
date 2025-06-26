@@ -1,0 +1,11 @@
+id,name,description,price
+1,Le classique,"Steak, salade, tomate, oignons, cornichons, ketchup, moutarde",5.99
+2,Le cheeseburger,"Steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",6.99
+3,Le bacon,"Steak, bacon, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",7.99
+4,Le fish,"Poisson pané, salade, tomate, oignons, cornichons, ketchup, moutarde",6.99
+5,Le chicken,"Poulet pané, salade, tomate, oignons, cornichons, ketchup, moutarde",6.99
+6,Le végétarien,"Steak végétal, salade, tomate, oignons, cornichons, ketchup, moutarde",6.99
+7,Le double,"Double steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",8.99
+8,Le triple,"Triple steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",10.99
+9,Le maxi,"Steak, bacon, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde, oeuf",9.99
+10,Le savoyard, "Steak, bacon, raclette, tomate, cornichons, sauce spéciale moutarde, oignons",11.90

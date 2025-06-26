@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\UserService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+
 
 final class UserController extends AbstractController
 {   ## Route to get one user by ID
@@ -70,28 +72,36 @@ final class UserController extends AbstractController
         }
     }
 
-    ## Route to login a user
-    #[Route('/api/user/login', methods: ['POST'])]
-    public function login(
-        Request $request,
-        UserService $userService
-    ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
-        $username = $data['username'] ?? '';
-        $password = $data['password'] ?? '';
+   #[Route('/api/user/login', methods: ['POST'])]
+public function login(
+    Request $request,
+    UserService $userService,
+    JWTTokenManagerInterface $JWTManager
+): JsonResponse {
+    $data = json_decode($request->getContent(), true);
+    $username = $data['username'] ?? '';
+    $password = $data['password'] ?? '';
 
-        if (empty($username) || empty($password)) {
-            return new JsonResponse(['error' => 'Username and password are required'], 400);
-        }
-
-        $user = $userService->loginUser($username, $password);
-
-        if (!$user) {
-            return new JsonResponse(['error' => 'Invalid credentials'], 401);
-        }
-
-        return new JsonResponse(['status' => 'Login successful', 'id' => $user->getId()], 200);
+    if (empty($username) || empty($password)) {
+        return new JsonResponse(['error' => 'Username and password are required'], 400);
     }
+
+    $user = $userService->loginUser($username, $password);
+
+    if (!$user) {
+        return new JsonResponse(['error' => 'Invalid credentials'], 401);
+    }
+
+    // Générated JWT token
+    $token = $JWTManager->create($user);
+
+    return new JsonResponse([
+        'token' => $token,
+        'id' => $user->getId(),
+        'username' => $user->getUsername()
+    ], 200);
+    
+}
 
     ## Route to delete a user by ID
     #[Route('/api/user/{id}', methods: ['DELETE'])]

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250625120755 extends AbstractMigration
+final class Version20250626211833 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,16 +21,13 @@ final class Version20250625120755 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE users ADD created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
+            ALTER TABLE pizza ADD created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE users ADD updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
+            ALTER TABLE pizza ADD updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE users RENAME COLUMN name TO username
-        SQL);
-        $this->addSql(<<<'SQL'
-            COMMENT ON COLUMN users.created_at IS '(DC2Type:datetime_immutable)'
+            COMMENT ON COLUMN pizza.created_at IS '(DC2Type:datetime_immutable)'
         SQL);
     }
 
@@ -41,13 +38,10 @@ final class Version20250625120755 extends AbstractMigration
             CREATE SCHEMA public
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE users DROP created_at
+            ALTER TABLE pizza DROP created_at
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE users DROP updated_at
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE users RENAME COLUMN username TO name
+            ALTER TABLE pizza DROP updated_at
         SQL);
     }
 }

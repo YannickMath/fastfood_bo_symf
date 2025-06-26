@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Dto\User\Input\UserRegisterInputDto;
-use App\Entity\Users;
+use App\Entity\User;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -25,7 +25,7 @@ class UserService
     }
 
     ## Method to create a new user
-    public function createUser(UserRegisterInputDto $dto): Users
+    public function createUser(UserRegisterInputDto $dto): User
     {
         if (!empty($dto->email)) {
             $existingUser = $this->usersRepository->findOneBy(['email' => $dto->email]);
@@ -39,7 +39,7 @@ class UserService
             throw new \RuntimeException('Username already exists');
         }
 
-        $user = new Users();
+        $user = new User();
         $user->setUsername($dto->username);
         $user->setPassword($this->passwordEncoder->hashPassword($user, $dto->password));
         $user->setEmail($dto->email ?? '');
@@ -51,7 +51,7 @@ class UserService
     }
 
     ## Method to login a user
-    public function loginUser(string $username, string $password): ?Users
+    public function loginUser(string $username, string $password): ?User
     {
         $user = $this->usersRepository->findOneBy(['username' => $username]);
         if (!$user) {
@@ -66,14 +66,14 @@ class UserService
     }
 
     ## Method to delete a user
-    public function deleteUser(Users $user): void
+    public function deleteUser(User $user): void
     {
         $this->entityManager->remove($user);
         $this->entityManager->flush();
     }
     
     ## Method to find a user by ID
-    public function findUserById(int $id): ?Users
+    public function findUserById(int $id): ?User
     {
         return $this->usersRepository->findUserById($id);
     }

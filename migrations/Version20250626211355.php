@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250626050616 extends AbstractMigration
+final class Version20250626211355 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,10 +21,7 @@ final class Version20250626050616 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE users ALTER email SET NOT NULL
-        SQL);
-        $this->addSql(<<<'SQL'
-            CREATE UNIQUE INDEX UNIQ_1483A5E9E7927C74 ON users (email)
+            CREATE TABLE pizza (id SERIAL NOT NULL, name VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, price INT NOT NULL, PRIMARY KEY(id))
         SQL);
     }
 
@@ -35,10 +32,7 @@ final class Version20250626050616 extends AbstractMigration
             CREATE SCHEMA public
         SQL);
         $this->addSql(<<<'SQL'
-            DROP INDEX UNIQ_1483A5E9E7927C74
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE users ALTER email DROP NOT NULL
+            DROP TABLE pizza
         SQL);
     }
 }
