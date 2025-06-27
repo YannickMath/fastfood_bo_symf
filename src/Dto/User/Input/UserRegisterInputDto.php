@@ -28,9 +28,6 @@ class UserRegisterInputDto
     #[Assert\Length(max: 500)]
     public ?string $description = null;
 
-    #[Assert\Type('bool')]
-    public bool $isAdmin = false;
-
     public function __construct(array $data)
     {
         $this->username = $data['username'] ?? '';
