@@ -25,6 +25,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: false)]
     private?string $password;
 
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -90,15 +93,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     
-    /**
+     /**
      * Returns the roles granted to the user.
      *
      * @return string[]
      */
     public function getRoles(): array
     {
-        // By default, every user has ROLE_USER
-        return ['ROLE_USER'];
+        return $this->roles;
+    }
+
+    /**
+     * Set roles for the user.
+     *
+     * @param string[] $roles
+     * @return static
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
     
     public function eraseCredentials(): void
@@ -114,6 +129,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
+        
         $this->createdAt = $createdAt;
 
         return $this;

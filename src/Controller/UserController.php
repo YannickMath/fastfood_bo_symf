@@ -12,7 +12,6 @@ use App\Service\UserService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-
 final class UserController extends AbstractController
 {   ## Route to get one user by ID
     #[Route('/api/user/{id}', methods: ['GET'])]
@@ -42,42 +41,38 @@ final class UserController extends AbstractController
         return $this->json($dtos);
     }
 
-    ## Route to register a new user
     #[Route('/api/user/register', methods: ['POST'])]
-    public function register(
-        Request $request,
-        ValidatorInterface $validator,
-        UserService $userService
-    ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
+public function register(
+    Request $request,
+    ValidatorInterface $validator,
+    UserService $userService
+): JsonResponse {
+    $data = json_decode($request->getContent(), true);
+    $dto = new UserRegisterInputDto($data);
 
-        $dto = new UserRegisterInputDto($data);
-        $errors = $validator->validate($dto);
-
-        if (count($errors) > 0) {
-            $errorsArray = [];
-            foreach ($errors as $error) {
-                $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
-            }
-            return new JsonResponse(['errors' => $errorsArray], 400);
+    $errors = $validator->validate($dto);
+    if (count($errors) > 0) {
+        $errorsArray = [];
+        foreach ($errors as $error) {
+            $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
         }
-
-        try {
-            $user = $userService->createUser($dto);
-            return new JsonResponse(['status' => 'User created', 'id' => $user->getId()], 201);
-        } catch (\RuntimeException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], 400);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Registration failed'], 500);
-        }
+        return new JsonResponse(['errors' => $errorsArray], JsonResponse::HTTP_BAD_REQUEST);
     }
 
-   #[Route('/api/user/login', methods: ['POST'])]
-public function login(
-    Request $request,
-    UserService $userService,
-    JWTTokenManagerInterface $JWTManager
-): JsonResponse {
+    $user = $userService->createUser($dto);
+
+    return new JsonResponse([
+        'status' => 'User created',
+        'id' => $user->getId(),
+    ], JsonResponse::HTTP_CREATED);
+}
+
+    #[Route('/api/user/login', methods: ['POST'])]
+    public function login(
+        Request $request,
+        UserService $userService,
+        JWTTokenManagerInterface $JWTManager
+    ): JsonResponse {
     $data = json_decode($request->getContent(), true);
     $username = $data['username'] ?? '';
     $password = $data['password'] ?? '';
@@ -100,7 +95,9 @@ public function login(
         'id' => $user->getId(),
         'username' => $user->getUsername()
     ], 200);
-    
+    {
+        return new JsonResponse(['error' => 'Login failed'], 500);
+    }
 }
 
     ## Route to delete a user by ID

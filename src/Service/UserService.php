@@ -4,8 +4,12 @@ namespace App\Service;
 
 use App\Dto\User\Input\UserRegisterInputDto;
 use App\Entity\User;
+use App\Exception\UserAlreadyExistsException;
+use App\Exception\UserEmailAlreadyExistsException;
+use App\Exception\UserLoginException;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\UserNotFoundException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
@@ -30,19 +34,20 @@ class UserService
         if (!empty($dto->email)) {
             $existingUser = $this->usersRepository->findOneBy(['email' => $dto->email]);
             if ($existingUser) {
-                throw new \RuntimeException('Email already exists');
+                throw new UserEmailAlreadyExistsException($dto->email);
             }
         }
 
         $existingUser = $this->usersRepository->findOneBy(['username' => $dto->username]);
         if ($existingUser) {
-            throw new \RuntimeException('Username already exists');
+            throw new UserAlreadyExistsException($dto->username);
         }
 
         $user = new User();
         $user->setUsername($dto->username);
         $user->setPassword($this->passwordEncoder->hashPassword($user, $dto->password));
         $user->setEmail($dto->email ?? '');
+        $user->setRoles(['ROLE_USER']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -55,14 +60,14 @@ class UserService
     {
         $user = $this->usersRepository->findOneBy(['username' => $username]);
         if (!$user) {
-            return null; // User not found
+            throw new UserLoginException($username);
         }
 
         if ($this->passwordEncoder->isPasswordValid($user, $password)) {
-            return $user; // Password is valid
+            throw new UserLoginException($user->getEmail());
         }
 
-        return null; // Invalid password
+        return null;
     }
 
     ## Method to delete a user

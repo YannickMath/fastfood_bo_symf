@@ -12,19 +12,19 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private int $id;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
+    private string $description;
 
      #[ORM\Column(length: 255)]
-    private ?string $category = null;
+    private string $category;
 
     #[ORM\Column]
-    private ?int $price = null;
+    private int $price;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
@@ -63,12 +63,12 @@ class Product
 
     public function getPrice(): ?int
     {
-        return $this->price;
+        return $this->price/100;
     }
 
     public function setPrice(int $price): static
     {
-        $this->price = $price;
+        $this->price = $price/100;
 
         return $this;
     }
