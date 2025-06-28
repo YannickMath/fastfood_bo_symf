@@ -68,10 +68,10 @@ public function register(
 }
 
     #[Route('/api/user/login', methods: ['POST'])]
-    public function login(
-        Request $request,
-        UserService $userService,
-        JWTTokenManagerInterface $JWTManager
+public function login(
+    Request $request,
+    UserService $userService,
+    JWTTokenManagerInterface $JWTManager
     ): JsonResponse {
     $data = json_decode($request->getContent(), true);
     $username = $data['username'] ?? '';
@@ -80,24 +80,12 @@ public function register(
     if (empty($username) || empty($password)) {
         return new JsonResponse(['error' => 'Username and password are required'], 400);
     }
-
+    
     $user = $userService->loginUser($username, $password);
 
-    if (!$user) {
-        return new JsonResponse(['error' => 'Invalid credentials'], 401);
-    }
-
-    // Générated JWT token
     $token = $JWTManager->create($user);
 
-    return new JsonResponse([
-        'token' => $token,
-        'id' => $user->getId(),
-        'username' => $user->getUsername()
-    ], 200);
-    {
-        return new JsonResponse(['error' => 'Login failed'], 500);
-    }
+    return new JsonResponse(['token' => $token], 200);
 }
 
     ## Route to delete a user by ID

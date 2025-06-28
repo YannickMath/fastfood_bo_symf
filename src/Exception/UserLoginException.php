@@ -1,16 +1,9 @@
 <?php
 namespace App\Exception;
-
 class UserLoginException extends \Exception
 {
-    public function __construct(string $identifier = '')
+    public function __construct()
     {
-        $message = "Login failed. Please check your credentials.";
-
-        if (!empty($identifier)) {
-            $message .= " (Tried: $identifier)";
-        }
-
-        parent::__construct($message);
+        parent::__construct("Invalid credentials.");
     }
 }

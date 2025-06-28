@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserEmailAlreadyExistsException;
 use App\Exception\UserLoginException;
+use App\Exception\UserNotFoundException as ExceptionUserNotFoundException;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\UserNotFoundException;
@@ -55,20 +56,17 @@ class UserService
         return $user;
     }
 
-    ## Method to login a user
-    public function loginUser(string $username, string $password): ?User
-    {
-        $user = $this->usersRepository->findOneBy(['username' => $username]);
-        if (!$user) {
-            throw new UserLoginException($username);
-        }
+   public function loginUser(string $identifier, string $password): User
+{
+    $user = $this->usersRepository->findOneBy(['username' => $identifier]) 
+        ?? $this->usersRepository->findOneBy(['email' => $identifier]);
 
-        if ($this->passwordEncoder->isPasswordValid($user, $password)) {
-            throw new UserLoginException($user->getEmail());
-        }
-
-        return null;
+    if (!$user || !$this->passwordEncoder->isPasswordValid($user, $password)) {
+        throw new UserLoginException();
     }
+
+    return $user;
+}
 
     ## Method to delete a user
     public function deleteUser(User $user): void
@@ -80,6 +78,9 @@ class UserService
     ## Method to find a user by ID
     public function findUserById(int $id): ?User
     {
+        if (!$id) {
+            throw new ExceptionUserNotFoundException();
+        }
         return $this->usersRepository->findUserById($id);
     }
 

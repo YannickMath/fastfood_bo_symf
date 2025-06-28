@@ -3,8 +3,8 @@ namespace App\Exception;
 
 class UserNotFoundException extends \Exception
 {
-    public function __construct(string $username)
+    public function __construct()
     {
-        parent::__construct("User with username '{$username}' not found.");
+        parent::__construct("User not found.");
     }
 }
