@@ -4,7 +4,7 @@ namespace App\Dto\User\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserRegisterInputDto
+class UserUpdateInputDto
 {
     #[Assert\NotBlank]
     public string $username;
@@ -21,8 +21,6 @@ class UserRegisterInputDto
     #[Assert\Length(max: 255)]
     #[Assert\NotBlank]
     public string $email;
-
- 
 
     public function __construct(array $data)
     {

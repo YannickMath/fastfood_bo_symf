@@ -3,14 +3,16 @@
 namespace App\Service;
 
 use App\Dto\User\Input\UserRegisterInputDto;
+use App\Dto\User\Input\UserUpdateInputDto;
 use App\Entity\User;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserEmailAlreadyExistsException;
 use App\Exception\UserLoginException;
-use App\Exception\UserNotFoundException as ExceptionUserNotFoundException;
+use App\Exception\UserNotFoundException;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Exception\UserNotFoundException;
+use Exception;
+// use Lexik\Bundle\JWTAuthenticationBundle\Exception\UserNotFoundException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
@@ -22,7 +24,7 @@ class UserService
     public function __construct(
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordEncoder,
-        UsersRepository $usersRepository
+        UsersRepository $usersRepository,
     ) {
         $this->entityManager = $entityManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -79,14 +81,65 @@ class UserService
     public function findUserById(int $id): ?User
     {
         if (!$id) {
-            throw new ExceptionUserNotFoundException();
+            throw new UserNotFoundException();
         }
         return $this->usersRepository->findUserById($id);
     }
 
-    ## Method to update a user
+    ## Method to get all users
     public function getAllUsers(): array
     {
         return $this->usersRepository->findAll();
+    }
+    
+    ## Method to update a user
+        public function updateUser(User $user, UserUpdateInputDto $dto): User
+    {
+        if (!empty($dto->username)) {
+            $user->setUsername($dto->username);
+        }
+        if (!empty($dto->email)) {
+            $user->setEmail($dto->email);
+        }
+        if (!empty($dto->password)) {
+            $user->setPassword($this->passwordEncoder->hashPassword($user, $dto->password));
+        }
+
+        // $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
+    }
+
+    // ## Method to check if a user is connected
+    // public function connectedUser(): ?User
+    // {
+    //     $token = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+    //     if (!$token) {
+    //         return null;
+    //     }
+
+    //     $token = str_replace('Bearer ', '', $token);
+    //     $user = $this->usersRepository->findOneBy(['apiToken' => $token]);
+
+    //     if (!$user) {
+    //         return null;
+    //     }
+
+    //     return $user;
+    // }
+
+    ## Method to check if a user has admin rights
+    public function isGranted($user): bool
+    {
+    if (!$user instanceof User) {
+        throw new UserNotFoundException();
+    }
+    dd($user);
+
+        // Check if the user has the ROLE_ADMIN role
+        // This assumes that the User entity has a getRoles() method that returns an array of roles
+        // If your User entity uses a different method or structure, adjust accordingly
+    return in_array('ROLE_ADMIN', $user->getRoles(), true);
     }
 }

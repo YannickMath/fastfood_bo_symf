@@ -5,10 +5,13 @@ namespace App\Controller;
 use App\Dto\Product\Input\ProductInputDto;
 use App\Dto\Product\Output\ProductOutputDto;
 use App\Service\ProductService;
+use App\Service\UserService;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;   
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;  
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
@@ -35,17 +38,19 @@ final class ProductController extends AbstractController
     {
         $product = $productService->showProduct($id);
 
-        if (!$product) {
-            return new JsonResponse(['error' => 'Product not found'], 404);
-        }
-
         $dto = new ProductOutputDto($product->getName(), $product->getPrice(), $product->getDescription());
         return $this->json($dto);
     }
 
     #[Route('/api/product/find/{name}', methods: ['GET'])]
-    public function findProductByName(string $name, ProductService $productService): JsonResponse
+    public function findProductByName(string $name, ProductService $productService, UserService $userService): JsonResponse
     {
+        $user = $this->getUser();
+        // dd($user);
+        // if (!$user || !$userService->isGranted($user)) {
+        //     return new JsonResponse(['error' => 'Access denied'], 403);
+        // }
+        $userService->isGranted($user);
         $product = $productService->findProductByName($name);
 
         $dto = new ProductOutputDto(
@@ -125,15 +130,22 @@ final class ProductController extends AbstractController
     // Route to get products by category
     #[Route('/api/products/category/{category}', methods: ['GET'])]
     public function getProductsByCategory(string $category, ProductService $productService): JsonResponse
-    {
-        $products = $productService->getProductsByCategory($category);
+        {
+            $products = $productService->getProductsByCategory($category);
 
-        $dtos = [];
-        foreach ($products as $product) {
-            $dtos[] = new ProductOutputDto($product->getName(), $product->getPrice(), $product->getDescription());
+            $dtos = [];
+            foreach ($products as $product) {
+                $dtos[] = [
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                    'price' => $product->getPrice(),
+                    'description' => $product->getDescription(),
+                    'category' => $product->getCategory()
+                ];
+            }
+
+            return $this->json($dtos); 
+
         }
-
-        return $this->json($dtos);
-    }
 
 }

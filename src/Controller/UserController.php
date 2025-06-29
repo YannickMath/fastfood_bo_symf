@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\User\Input\UserRegisterInputDto;
+use App\Dto\User\Input\UserUpdateInputDto;
 use App\Dto\User\Output\UserOutputDto;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,7 +79,7 @@ public function login(
     $password = $data['password'] ?? '';
 
     if (empty($username) || empty($password)) {
-        return new JsonResponse(['error' => 'Username and password are required'], 400);
+        return new JsonResponse(['error' => 'Username/password are required'], 400);
     }
     
     $user = $userService->loginUser($username, $password);
@@ -94,10 +95,6 @@ public function login(
     {
         $user = $userService->findUserById($id);
 
-        if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], 404);
-        }
-
         try {
             $userService->deleteUser($user);
             return new JsonResponse(['status' => 'User deleted'], 204);
@@ -106,52 +103,39 @@ public function login(
         }
     }
 
-    ## Route to get updated user information
-    #[Route('/api/user/{id}/update', methods: ['PUT'])]
-    public function updateUser(
-        int $id,
-        Request $request,
-        ValidatorInterface $validator,
-        UserService $userService,
-        \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $passwordHasher,
-        \Doctrine\ORM\EntityManagerInterface $entityManager
-    ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
-        $dto = new UserRegisterInputDto($data);
+   #[Route('/api/user/{id}/update', methods: ['PUT'])]
+public function updateUser(
+    int $id,
+    Request $request,
+    ValidatorInterface $validator,
+    UserService $userService
+): JsonResponse {
+    $data = json_decode($request->getContent(), true);
+    $dto = new UserUpdateInputDto($data); // Meilleur nom
 
-        $errors = $validator->validate($dto);
-        if (count($errors) > 0) {
-            $errorsArray = [];
-            foreach ($errors as $error) {
-                $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
-            }
-            return new JsonResponse(['errors' => $errorsArray], 400);
+    $errors = $validator->validate($dto);
+    if (count($errors) > 0) {
+        $errorsArray = [];
+        foreach ($errors as $error) {
+            $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
         }
+        return new JsonResponse(['errors' => $errorsArray], 400);
+    }
 
-        try {
-            $user = $userService->findUserById($id);
-            if (!$user) {
-                return new JsonResponse(['error' => 'User not found'], 404);
-            }
+    try {
+        $user = $userService->findUserById($id);
+        $updatedUser = $userService->updateUser($user, $dto);
 
-            // Update user properties
-            if (!empty($dto->username)) {
-                $user->setUsername($dto->username);
-            }
-            if (!empty($dto->email)) {
-                $user->setEmail($dto->email);
-            if (!empty($dto->password)) {
-                $user->setPassword($passwordHasher->hashPassword($user, $dto->password));
-            }
-            }
-            // Persist changes
-            $entityManager->persist($user);
-            $entityManager->flush();
+        return new JsonResponse([
+            'status' => 'User updated',
+            'id' => $updatedUser->getId(),
+        ], 200);
 
-            return new JsonResponse(['status' => 'User updated', 'id' => $user->getId()], 200);
-            return new JsonResponse(['status' => 'User updated', 'id' => $user->getId()], 200);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Update failed'], 500);
-        }
+    } catch (\App\Exception\UserNotFoundException $e) {
+        return new JsonResponse(['error' => $e->getMessage()], 404);
+    } catch (\Exception $e) {
+        return new JsonResponse(['error' => 'Update failed'], 500);
+    }
+
     }
 }

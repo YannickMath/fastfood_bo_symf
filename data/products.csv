@@ -29,3 +29,10 @@ id,name,description,price,category
 28,Tiramisu,"Dessert italien à base de mascarpone et café",390,dessert
 29,Muffin Myrtilles,"Muffin moelleux aux myrtilles",290,dessert
 30,Glace vanille,"2 boules de glace vanille",250,dessert
+31,Frites classiques,"Frites croustillantes",250,frite
+32,Frites cheddar,"Frites avec sauce cheddar fondue",350,frite
+33,Frites bacon,"Frites, cheddar, bacon",450,frite
+34,Frites épicées,"Frites assaisonnées aux épices",300,frite
+35,Potatoes,"Potatoes croustillantes",350,frite
+36,Potatoes épicées,"Potatoes croustillantes assaisonnées aux épices",370,frite
+37,Potatoes cheddar,"Potatoes croustillantes avec sauce cheddar fondue",400,frite

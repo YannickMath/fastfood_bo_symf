@@ -32,6 +32,10 @@ class ProductService
     ## Method to find a product by ID
     public function showProduct(int $id): ?Product
     {
+        $product = $this->productRepository->find($id);
+        if (!$product) {
+            throw new ProductNotFoundException();
+        }
         return $this->productRepository->find($id);
     } 
 
@@ -41,7 +45,7 @@ class ProductService
         $product = $this->productRepository->findOneBy(['name' => $name]);
         dump($product);
         if (!$product) {
-            throw new ProductNotFoundException($name);
+            throw new ProductNotFoundException();
         }
 
         return $product;
@@ -75,7 +79,7 @@ class ProductService
     {
         $product = $this->productRepository->find($id);
         if (!$product) {
-            throw new ProductNotFoundException($dto->name);
+            throw new ProductNotFoundException();
         }
 
         $product->setName($dto->name);
@@ -112,6 +116,7 @@ class ProductService
         if (empty($products)) {
             throw new ProductWithNoCategoryException($category);
         }
+        // dd('on est dans getProductsByCategory');
         return $products;
     }
 }

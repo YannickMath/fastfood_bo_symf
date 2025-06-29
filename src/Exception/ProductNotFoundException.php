@@ -3,8 +3,8 @@ namespace App\Exception;
 
 class ProductNotFoundException extends \Exception
 {
-    public function __construct(string $productName)
+    public function __construct()
     {
-        parent::__construct("Product with name '{$productName}' not found.");
+        parent::__construct("Product not found.");
     }
 }
