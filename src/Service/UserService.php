@@ -11,8 +11,6 @@ use App\Exception\UserLoginException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-// use Lexik\Bundle\JWTAuthenticationBundle\Exception\UserNotFoundException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
@@ -105,7 +103,6 @@ class UserService
             $user->setPassword($this->passwordEncoder->hashPassword($user, $dto->password));
         }
 
-        // $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $user;
@@ -135,11 +132,7 @@ class UserService
     if (!$user instanceof User) {
         throw new UserNotFoundException();
     }
-    dd($user);
 
-        // Check if the user has the ROLE_ADMIN role
-        // This assumes that the User entity has a getRoles() method that returns an array of roles
-        // If your User entity uses a different method or structure, adjust accordingly
     return in_array('ROLE_ADMIN', $user->getRoles(), true);
     }
 }

@@ -5,10 +5,12 @@ namespace App\Entity;
 use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Category;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -20,8 +22,9 @@ class Product
     #[ORM\Column(type: Types::TEXT)]
     private string $description;
 
-     #[ORM\Column(length: 255)]
-    private string $category;
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private Category $category;
 
     #[ORM\Column]
     private int $price;
@@ -63,22 +66,22 @@ class Product
 
     public function getPrice(): ?int
     {
-        return $this->price/100;
+        return $this->price;
     }
 
     public function setPrice(int $price): static
     {
-        $this->price = $price/100;
+        $this->price = $price;
 
         return $this;
     }
 
-    public function getCategory(): ?string
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(Category $category): static
     {
         $this->category = $category;
 

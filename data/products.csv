@@ -1,38 +1,38 @@
 id,name,description,price,category
-1,Le classique,"Steak, salade, tomate, oignons, cornichons, ketchup, moutarde",599,burger
-2,Le cheeseburger,"Steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",699,burger
-3,Le bacon,"Steak, bacon, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",799,burger
-4,Le fish,"Poisson pané, salade, tomate, oignons, cornichons, ketchup, moutarde",699,burger
-5,Le chicken,"Poulet pané, salade, tomate, oignons, cornichons, ketchup, moutarde",699,burger
-6,Le végétarien,"Steak végétal, salade, tomate, oignons, cornichons, ketchup, moutarde",699,burger
-7,Le double,"Double steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",899,burger
-8,Le triple,"Triple steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",1099,burger
-9,La 4 fromages,"Mozzarella, gorgonzola, emmental, parmesan",899,pizza
-10,La Reine,"Tomate, mozzarella, jambon, champignons, olives",999,pizza
-11,La Margherita,"Tomate, mozzarella, basilic",799,pizza
-12,La Calzone,"Tomate, mozzarella, jambon, champignons, oeuf",1099,pizza
-13,La Végétarienne,"Tomate, mozzarella, poivrons, oignons, olives",899,pizza
-14,La Hawaïenne,"Tomate, mozzarella, jambon, ananas",999,pizza
-15,La 3 fromages,"Mozzarella, chèvre, emmental",899,pizza
-16,La Savoyarde,"Crème, mozzarella, reblochon, lardons, pommes de terre",1199,pizza
-17,Coca-Cola,"Boisson gazeuse rafraîchissante",200,boisson
-18,Fanta Orange,"Boisson gazeuse à l’orange",200,boisson
-19,Sprite,"Boisson gazeuse citron-lime",200,boisson
-20,Ice Tea Pêche,"Thé glacé à la pêche",250,boisson
-21,Oasis Tropical,"Boisson fruitée sans bulles",200,boisson
-22,Eau minérale,"Eau naturelle plate",150,boisson
-23,Eau gazeuse,"Eau pétillante rafraîchissante",180,boisson
-24,Red Bull,"Boisson énergisante",300,boisson
-25,Brownie,"Gâteau fondant au chocolat",350,dessert
-26,Cookie XXL,"Cookie moelleux aux pépites de chocolat",250,dessert
-27,Donut Chocolat,"Donut nappé de chocolat",280,dessert
-28,Tiramisu,"Dessert italien à base de mascarpone et café",390,dessert
-29,Muffin Myrtilles,"Muffin moelleux aux myrtilles",290,dessert
-30,Glace vanille,"2 boules de glace vanille",250,dessert
-31,Frites classiques,"Frites croustillantes",250,frite
-32,Frites cheddar,"Frites avec sauce cheddar fondue",350,frite
-33,Frites bacon,"Frites, cheddar, bacon",450,frite
-34,Frites épicées,"Frites assaisonnées aux épices",300,frite
-35,Potatoes,"Potatoes croustillantes",350,frite
-36,Potatoes épicées,"Potatoes croustillantes assaisonnées aux épices",370,frite
-37,Potatoes cheddar,"Potatoes croustillantes avec sauce cheddar fondue",400,frite
+1,Le classique,"Steak, salade, tomate, oignons, cornichons, ketchup, moutarde",599,1
+2,Le cheese1,"Steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",699,1
+3,Le bacon,"Steak, bacon, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",799,1
+4,Le fish,"Poisson pané, salade, tomate, oignons, cornichons, ketchup, moutarde",699,1
+5,Le chicken,"Poulet pané, salade, tomate, oignons, cornichons, ketchup, moutarde",699,1
+6,Le végétarien,"Steak végétal, salade, tomate, oignons, cornichons, ketchup, moutarde",699,1
+7,Le double,"Double steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",899,1
+8,Le triple,"Triple steak, fromage, salade, tomate, oignons, cornichons, ketchup, moutarde",1099,1
+9,La 4 fromages,"Mozzarella, gorgonzola, emmental, parmesan",899,2
+10,La Reine,"Tomate, mozzarella, jambon, champignons, olives",999,2
+11,La Margherita,"Tomate, mozzarella, basilic",799,2
+12,La Calzone,"Tomate, mozzarella, jambon, champignons, oeuf",1099,2
+13,La Végétarienne,"Tomate, mozzarella, poivrons, oignons, olives",899,2
+14,La Hawaïenne,"Tomate, mozzarella, jambon, ananas",999,2
+15,La 3 fromages,"Mozzarella, chèvre, emmental",899,2
+16,La Savoyarde,"Crème, mozzarella, reblochon, lardons, pommes de terre",1199,2
+17,Coca-Cola,"3 gazeuse rafraîchissante",200,3
+18,Fanta Orange,"3 gazeuse à l’orange",200,3
+19,Sprite,"3 gazeuse citron-lime",200,3
+20,Ice Tea Pêche,"Thé glacé à la pêche",250,3
+21,Oasis Tropical,"3 fruitée sans bulles",200,3
+22,Eau minérale,"Eau naturelle plate",150,3
+23,Eau gazeuse,"Eau pétillante rafraîchissante",180,3
+24,Red Bull,"3 énergisante",300,3
+25,Brownie,"Gâteau fondant au chocolat",350,5
+26,Cookie XXL,"Cookie moelleux aux pépites de chocolat",250,5
+27,Donut Chocolat,"Donut nappé de chocolat",280,5
+28,Tiramisu,"5 italien à base de mascarpone et café",390,5
+29,Muffin Myrtilles,"Muffin moelleux aux myrtilles",290,5
+30,Glace vanille,"2 boules de glace vanille",250,5
+31,4 classiques,"4 croustillantes",250,4
+32,4 cheddar,"4 avec sauce cheddar fondue",350,4
+33,4 bacon,"4, cheddar, bacon",450,4
+34,4 épicées,"4 assaisonnées aux épices",300,4
+35,Potatoes,"Potatoes croustillantes",350,4
+36,Potatoes épicées,"Potatoes croustillantes assaisonnées aux épices",370,4
+37,Potatoes cheddar,"Potatoes croustillantes avec sauce cheddar fondue",400,4

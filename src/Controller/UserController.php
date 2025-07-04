@@ -111,7 +111,7 @@ public function updateUser(
     UserService $userService
 ): JsonResponse {
     $data = json_decode($request->getContent(), true);
-    $dto = new UserUpdateInputDto($data); // Meilleur nom
+    $dto = new UserUpdateInputDto($data); 
 
     $errors = $validator->validate($dto);
     if (count($errors) > 0) {

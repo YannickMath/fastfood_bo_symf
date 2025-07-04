@@ -6,12 +6,10 @@ use App\Dto\Product\Input\ProductInputDto;
 use App\Dto\Product\Output\ProductOutputDto;
 use App\Service\ProductService;
 use App\Service\UserService;
-use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;   
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;  
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
@@ -46,10 +44,7 @@ final class ProductController extends AbstractController
     public function findProductByName(string $name, ProductService $productService, UserService $userService): JsonResponse
     {
         $user = $this->getUser();
-        // dd($user);
-        // if (!$user || !$userService->isGranted($user)) {
-        //     return new JsonResponse(['error' => 'Access denied'], 403);
-        // }
+      
         $userService->isGranted($user);
         $product = $productService->findProductByName($name);
 
@@ -131,6 +126,7 @@ final class ProductController extends AbstractController
     #[Route('/api/products/category/{category}', methods: ['GET'])]
     public function getProductsByCategory(string $category, ProductService $productService): JsonResponse
         {
+            $category = 
             $products = $productService->getProductsByCategory($category);
 
             $dtos = [];

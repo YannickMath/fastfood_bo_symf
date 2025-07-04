@@ -3,17 +3,16 @@
 namespace App\Command;
 
 use App\Entity\Product;
+use App\Entity\Category;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
-
 use Doctrine\ORM\EntityManagerInterface;
 
 #[AsCommand(
     name: 'app:import-products',
-    description: 'Add a short description for your command',
+    description: 'Import des produits à partir d\'un fichier CSV.',
 )]
-
 class ImportProductsCommand extends Command
 {
     private EntityManagerInterface $entityManager;
@@ -24,8 +23,7 @@ class ImportProductsCommand extends Command
         $this->entityManager = $entityManager;
     }
 
-
-  public function __invoke(SymfonyStyle $io): int
+    public function __invoke(SymfonyStyle $io): int
     {
         $io->section('Import des produits');
 
@@ -39,8 +37,8 @@ class ImportProductsCommand extends Command
         if ($handle === false) {
             $io->error('Impossible d\'ouvrir le fichier products.csv.');
             return Command::FAILURE;
-        }  
-        
+        }
+
         $header = fgetcsv($handle, 1000, ',');
         if ($header === false) {
             $io->error('Le fichier products.csv est vide ou mal formé.');
@@ -49,33 +47,60 @@ class ImportProductsCommand extends Command
         }
 
         $products = [];
-        // Read CSV rows into $pizzas array
         while (($data = fgetcsv($handle, 1000, ',')) !== false) {
             $products[] = array_combine($header, $data);
         }
         fclose($handle);
 
         foreach ($products as $productsData) {
+            $existingProduct = $this->entityManager
+                ->getRepository(Product::class)
+                ->findOneBy(['name' => $productsData['name']]);
 
-            $existingProduct = $this->entityManager->getRepository(Product::class)->findOneBy(['name' => $productsData['name']]);
             if ($existingProduct) {
-                $io->warning(sprintf('Le produit %s existe déjà, il ne sera pas importé.', $productsData['name']));
+                $io->warning(sprintf(
+                    'Le produit "%s" existe déjà, il ne sera pas importé.',
+                    $productsData['name']
+                ));
                 continue;
             }
 
-            $io->info(sprintf('Produit importé : %s - %s', $productsData['name'], $productsData['price'], $productsData['category']));
-            
-            $burger = new Product();
-            $burger->setName($productsData['name']);
-            $burger->setDescription($productsData['description']);
-            $burger->setPrice((int)$productsData['price']);
-            $burger->setCategory($productsData['category']);
-            $burger->setCreatedAt(new \DateTimeImmutable());
-            $burger->setUpdatedAt(new \DateTime());
-            $this->entityManager->persist($burger);
+            // Récupération de la catégorie par ID
+            $categoryId = (int) $productsData['category'];
+            $category = $this->entityManager
+                ->getRepository(Category::class)
+                ->find($categoryId);
+
+            if (!$category) {
+                $io->warning(sprintf(
+                    'La catégorie avec l\'ID %d n\'existe pas. Produit "%s" ignoré.',
+                    $categoryId,
+                    $productsData['name']
+                ));
+                continue;
+            }
+
+            $product = new Product();
+            $product->setName($productsData['name']);
+            $product->setDescription($productsData['description']);
+            $product->setPrice((int) $productsData['price']);
+            $product->setCategory($category);
+            $product->setCreatedAt(new \DateTimeImmutable());
+            $product->setUpdatedAt(new \DateTime());
+
+            $this->entityManager->persist($product);
+
+            $io->info(sprintf(
+                'Produit importé : %s - %s€ - catégorie ID %d',
+                $productsData['name'],
+                $productsData['price'],
+                $categoryId
+            ));
         }
-        
+
         $this->entityManager->flush();
+
+        $io->success('Import des produits terminé avec succès.');
 
         return Command::SUCCESS;
     }

@@ -64,7 +64,14 @@ class ProductService
     $product->setName($dto->name);
     $product->setPrice($dto->price);
     $product->setDescription($dto->description ?? '');
-    $product->setCategory($dto->category ?? '');
+    $category = null;
+    if ($dto->category) {
+        $category = $this->entityManager->getRepository(\App\Entity\Category::class)->find($dto->category);
+        if (!$category) {
+            throw new \InvalidArgumentException("Category not found.");
+        }
+    }
+    $product->setCategory($category);
     $product->setCreatedAt(new \DateTimeImmutable());
     $product->setUpdatedAt(new \DateTime());
 
@@ -116,7 +123,6 @@ class ProductService
         if (empty($products)) {
             throw new ProductWithNoCategoryException($category);
         }
-        // dd('on est dans getProductsByCategory');
         return $products;
     }
 }
