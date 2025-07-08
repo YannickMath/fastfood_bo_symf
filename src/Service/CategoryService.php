@@ -2,12 +2,6 @@
 
 namespace App\Service;
 
-use App\Dto\Product\Input\ProductInputDto;
-use App\Entity\Product;
-use App\Exception\ProductCannotBeUpdatedException;
-use App\Exception\ProductNotDeletedException;
-use App\Exception\ProductNotFoundException;
-use App\Exception\ProductNotPossibleToCreateException;
 use App\Exception\ProductWithNoCategoryException;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;

@@ -58,8 +58,7 @@ class UserService
 
    public function loginUser(string $identifier, string $password): User
 {
-    $user = $this->usersRepository->findOneBy(['username' => $identifier]) 
-        ?? $this->usersRepository->findOneBy(['email' => $identifier]);
+    $user = $this->usersRepository->findOneBy(['email' => $identifier]);
 
     if (!$user || !$this->passwordEncoder->isPasswordValid($user, $password)) {
         throw new UserLoginException();

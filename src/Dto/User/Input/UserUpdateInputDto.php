@@ -10,10 +10,10 @@ class UserUpdateInputDto
     public string $username;
 
     #[Assert\NotBlank]
-    #[Assert\Length(min: 8, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.')]
+    #[Assert\Length(min: 8, minMessage: 'The password must be at least {{ limit }} characters long.')]
     #[Assert\Regex(
         pattern: '/^(?=.*[A-Z])(?=.*\d).+$/',
-        message: 'Le mot de passe doit contenir au moins une majuscule et un chiffre.'
+        message: 'The password must contain at least one uppercase letter and one digit.'
     )]
     public string $password;
 

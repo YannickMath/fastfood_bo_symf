@@ -73,21 +73,25 @@ public function login(
     Request $request,
     UserService $userService,
     JWTTokenManagerInterface $JWTManager
-    ): JsonResponse {
+): JsonResponse {
     $data = json_decode($request->getContent(), true);
-    $username = $data['username'] ?? '';
+    $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
 
-    if (empty($username) || empty($password)) {
-        return new JsonResponse(['error' => 'Username/password are required'], 400);
+    if (empty($email) || empty($password)) {
+        return new JsonResponse(['error' => 'email/password are required'], 400);
     }
-    
-    $user = $userService->loginUser($username, $password);
+
+    try {
+        $user = $userService->loginUser($email, $password);
+    } catch (\App\Exception\UserLoginException $e) {
+        return new JsonResponse(['error' => 'Invalid credentials'], 401);
+    }
 
     $token = $JWTManager->create($user);
-
     return new JsonResponse(['token' => $token], 200);
 }
+
 
     ## Route to delete a user by ID
     #[Route('/api/user/{id}', methods: ['DELETE'])]
