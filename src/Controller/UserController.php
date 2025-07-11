@@ -14,7 +14,23 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 final class UserController extends AbstractController
-{   ## Route to get one user by ID
+{   
+    
+    //route to check if user is authenticated and connected
+    #[Route('/api/user/checkAuthentication', methods: ['GET'])]
+    public function checkUserAuthentication(UserService $userService): JsonResponse
+    {
+        $user = $userService->getAuthenticatedUser();
+        // dd('user', $user);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not authenticated'], 401);
+        }
+
+        $dto = new UserOutputDto($user->getUsername(), $user->getEmail() ?? '');
+        return $this->json($dto);
+    }
+    
+    ## Route to get one user by ID
     #[Route('/api/user/{id}', methods: ['GET'])]
     public function showUser(int $id, UserService $userService): JsonResponse
     {
@@ -42,11 +58,16 @@ final class UserController extends AbstractController
         return $this->json($dtos);
     }
 
-    #[Route('/api/user/register', methods: ['POST'])]
+
+
+    ## Route to register a new user
+
+#[Route('/api/user/register', methods: ['POST'])]
 public function register(
     Request $request,
     ValidatorInterface $validator,
-    UserService $userService
+    UserService $userService,
+    JWTTokenManagerInterface $JWTManager
 ): JsonResponse {
     $data = json_decode($request->getContent(), true);
     $dto = new UserRegisterInputDto($data);
@@ -62,11 +83,17 @@ public function register(
 
     $user = $userService->createUser($dto);
 
-    return new JsonResponse([
+    $jwt = $JWTManager->create($user);
+
+    $response = new JsonResponse([
         'status' => 'User created',
         'id' => $user->getId(),
+        'token' => $jwt,
     ], JsonResponse::HTTP_CREATED);
+
+    return $response;
 }
+
 
     #[Route('/api/user/login', methods: ['POST'])]
 public function login(
@@ -88,8 +115,17 @@ public function login(
         return new JsonResponse(['error' => 'Invalid credentials'], 401);
     }
 
-    $token = $JWTManager->create($user);
-    return new JsonResponse(['token' => $token], 200);
+     $jwt = $JWTManager->create($user);
+
+    $response = new JsonResponse([
+        'status' => 'User logged in',
+        'id' => $user->getId(),
+        'token' => $jwt,
+    ], 200);
+  
+    return $response;
+
+
 }
 
 
@@ -141,5 +177,16 @@ public function updateUser(
         return new JsonResponse(['error' => 'Update failed'], 500);
     }
 
+    }
+
+    //route to logout user
+    #[Route('/api/user/logout', methods: ['POST'])]
+    public function logout(): JsonResponse
+    {
+    
+
+        // The frontend should handle removing the JWT from localStorage.
+
+        return new JsonResponse(['status' => 'User logged out']);
     }
 }

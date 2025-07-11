@@ -12,21 +12,25 @@ use App\Exception\UserNotFoundException;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class UserService
 {
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordEncoder;
     private UsersRepository $usersRepository;
+    private Security $security;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordEncoder,
         UsersRepository $usersRepository,
+        Security $security
     ) {
         $this->entityManager = $entityManager;
         $this->passwordEncoder = $passwordEncoder;
         $this->usersRepository = $usersRepository;
+        $this->security = $security;
     }
 
     ## Method to create a new user
@@ -124,6 +128,15 @@ class UserService
 
     //     return $user;
     // }
+
+    public function getAuthenticatedUser(): ?User
+{
+    /** @var User|null $user */
+    $user = $this->security->getUser();
+
+    return $user;
+}
+
 
     ## Method to check if a user has admin rights
     public function isGranted($user): bool
