@@ -30,7 +30,7 @@ final class UserController extends AbstractController
         return $this->json($dto);
     }
     
-    ## Route to get one user by ID
+    // Route to get one user by ID
     #[Route('/api/user/{id}', methods: ['GET'])]
     public function showUser(int $id, UserService $userService): JsonResponse
     {
@@ -44,7 +44,7 @@ final class UserController extends AbstractController
         return $this->json($dto);
     }
 
-    ## Route to get all users
+    // Route to get all users
     #[Route('/api/user', methods: ['GET'])]
     public function getAllUsers(UserService $userService): JsonResponse
     {
@@ -60,76 +60,77 @@ final class UserController extends AbstractController
 
 
 
-    ## Route to register a new user
+    // Route to register a new user
 
-#[Route('/api/user/register', methods: ['POST'])]
-public function register(
-    Request $request,
-    ValidatorInterface $validator,
-    UserService $userService,
-    JWTTokenManagerInterface $JWTManager
-): JsonResponse {
-    $data = json_decode($request->getContent(), true);
-    $dto = new UserRegisterInputDto($data);
+    #[Route('/api/user/register', methods: ['POST'])]
+    public function register(
+        Request $request,
+        ValidatorInterface $validator,
+        UserService $userService,
+        JWTTokenManagerInterface $JWTManager
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $dto = new UserRegisterInputDto($data);
 
-    $errors = $validator->validate($dto);
-    if (count($errors) > 0) {
-        $errorsArray = [];
-        foreach ($errors as $error) {
-            $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
+        $errors = $validator->validate($dto);
+        if (count($errors) > 0) {
+            $errorsArray = [];
+            foreach ($errors as $error) {
+                $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $errorsArray], JsonResponse::HTTP_BAD_REQUEST);
         }
-        return new JsonResponse(['errors' => $errorsArray], JsonResponse::HTTP_BAD_REQUEST);
+
+        $user = $userService->createUser($dto);
+
+        $jwt = $JWTManager->create($user);
+
+        $response = new JsonResponse([
+            'status' => 'User created',
+            'id' => $user->getId(),
+            'token' => $jwt,
+        ], JsonResponse::HTTP_CREATED);
+
+        return $response;
     }
 
-    $user = $userService->createUser($dto);
 
-    $jwt = $JWTManager->create($user);
+    // Route to login a user
+        #[Route('/api/user/login', methods: ['POST'])]
+    public function login(
+        Request $request,
+        UserService $userService,
+        JWTTokenManagerInterface $JWTManager
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'] ?? '';
+        $password = $data['password'] ?? '';
 
-    $response = new JsonResponse([
-        'status' => 'User created',
-        'id' => $user->getId(),
-        'token' => $jwt,
-    ], JsonResponse::HTTP_CREATED);
+        if (empty($email) || empty($password)) {
+            return new JsonResponse(['error' => 'email/password are required'], 400);
+        }
 
-    return $response;
-}
+        try {
+            $user = $userService->loginUser($email, $password);
+        } catch (\App\Exception\UserLoginException $e) {
+            return new JsonResponse(['error' => 'Invalid credentials'], 401);
+        }
+
+        $jwt = $JWTManager->create($user);
+
+        $response = new JsonResponse([
+            'status' => 'User logged in',
+            'id' => $user->getId(),
+            'token' => $jwt,
+        ], 200);
+    
+        return $response;
 
 
-    #[Route('/api/user/login', methods: ['POST'])]
-public function login(
-    Request $request,
-    UserService $userService,
-    JWTTokenManagerInterface $JWTManager
-): JsonResponse {
-    $data = json_decode($request->getContent(), true);
-    $email = $data['email'] ?? '';
-    $password = $data['password'] ?? '';
-
-    if (empty($email) || empty($password)) {
-        return new JsonResponse(['error' => 'email/password are required'], 400);
     }
 
-    try {
-        $user = $userService->loginUser($email, $password);
-    } catch (\App\Exception\UserLoginException $e) {
-        return new JsonResponse(['error' => 'Invalid credentials'], 401);
-    }
 
-     $jwt = $JWTManager->create($user);
-
-    $response = new JsonResponse([
-        'status' => 'User logged in',
-        'id' => $user->getId(),
-        'token' => $jwt,
-    ], 200);
-  
-    return $response;
-
-
-}
-
-
-    ## Route to delete a user by ID
+    // Route to delete a user by ID
     #[Route('/api/user/{id}', methods: ['DELETE'])]
     public function deleteUser(int $id, UserService $userService): JsonResponse
     {
@@ -143,41 +144,42 @@ public function login(
         }
     }
 
+    // Route to update a user by ID
    #[Route('/api/user/{id}/update', methods: ['PUT'])]
-public function updateUser(
-    int $id,
-    Request $request,
-    ValidatorInterface $validator,
-    UserService $userService
-): JsonResponse {
-    $data = json_decode($request->getContent(), true);
-    $dto = new UserUpdateInputDto($data); 
+    public function updateUser(
+        int $id,
+        Request $request,
+        ValidatorInterface $validator,
+        UserService $userService
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $dto = new UserUpdateInputDto($data); 
 
-    $errors = $validator->validate($dto);
-    if (count($errors) > 0) {
-        $errorsArray = [];
-        foreach ($errors as $error) {
-            $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
+        $errors = $validator->validate($dto);
+        if (count($errors) > 0) {
+            $errorsArray = [];
+            foreach ($errors as $error) {
+                $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $errorsArray], 400);
         }
-        return new JsonResponse(['errors' => $errorsArray], 400);
-    }
 
-    try {
-        $user = $userService->findUserById($id);
-        $updatedUser = $userService->updateUser($user, $dto);
+        try {
+            $user = $userService->findUserById($id);
+            $updatedUser = $userService->updateUser($user, $dto);
 
-        return new JsonResponse([
-            'status' => 'User updated',
-            'id' => $updatedUser->getId(),
-        ], 200);
+            return new JsonResponse([
+                'status' => 'User updated',
+                'id' => $updatedUser->getId(),
+            ], 200);
 
-    } catch (\App\Exception\UserNotFoundException $e) {
-        return new JsonResponse(['error' => $e->getMessage()], 404);
-    } catch (\Exception $e) {
-        return new JsonResponse(['error' => 'Update failed'], 500);
-    }
+        } catch (\App\Exception\UserNotFoundException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Update failed'], 500);
+        }
 
-    }
+        }
 
     //route to logout user
     #[Route('/api/user/logout', methods: ['POST'])]

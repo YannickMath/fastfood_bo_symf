@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class CategoryController extends AbstractController
 {
+    // Route to get all categories
     #[Route('/api/categories', methods: ['GET'])]
     public function getAllCategories(CategoryRepository $categoryRepository): JsonResponse
     {

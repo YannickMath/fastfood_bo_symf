@@ -40,6 +40,7 @@ final class ProductController extends AbstractController
         return $this->json($dto);
     }
 
+    // Route to find a product by name
     #[Route('/api/product/find/{name}', methods: ['GET'])]
     public function findProductByName(string $name, ProductService $productService, UserService $userService): JsonResponse
     {
@@ -114,6 +115,7 @@ final class ProductController extends AbstractController
         );
     }
 
+    // Route to delete a product by ID
     #[Route('/api/product/delete/{id}', methods: ['DELETE'])]
     public function deleteProduct(int $id, ProductService $productService): JsonResponse
     {
