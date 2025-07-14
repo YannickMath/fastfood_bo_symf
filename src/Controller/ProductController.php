@@ -24,7 +24,7 @@ final class ProductController extends AbstractController
         $dtos = [];
 
         foreach ($products as $product) {
-            $dtos[] = new ProductOutputDto($product->getName(), $product->getPrice(), $product->getDescription());
+            $dtos[] = new ProductOutputDto($product->getId(), $product->getName(), $product->getPrice(), $product->getDescription(), $product->getCategory()->getId());
         }
         
         return $this->json($dtos);
@@ -36,7 +36,7 @@ final class ProductController extends AbstractController
     {
         $product = $productService->showProduct($id);
 
-        $dto = new ProductOutputDto($product->getName(), $product->getPrice(), $product->getDescription());
+        $dto = new ProductOutputDto($product->getId() ,$product->getName(), $product->getPrice(), $product->getDescription(), $product->getCategory()->getId());
         return $this->json($dto);
     }
 
@@ -50,9 +50,11 @@ final class ProductController extends AbstractController
         $product = $productService->findProductByName($name);
 
         $dto = new ProductOutputDto(
+            $product->getId(),
             $product->getName(),
             $product->getPrice(),
-            $product->getDescription()
+            $product->getDescription(),
+            $product->getCategory()->getId()
         );
 
         return $this->json($dto);
@@ -81,7 +83,7 @@ final class ProductController extends AbstractController
         $product = $productService->createProduct($dto);
 
         return new JsonResponse(
-            new ProductOutputDto($product->getName(), $product->getPrice(), $product->getDescription()),
+            new ProductOutputDto($product->getId(), $product->getName(), $product->getPrice(), $product->getDescription(), $product->getCategory()->getId()),
             201
         );
     }
@@ -110,7 +112,7 @@ final class ProductController extends AbstractController
 
 
         return new JsonResponse(
-            new ProductOutputDto($product->getName(), $product->getPrice(), $product->getDescription()),
+            new ProductOutputDto($product->getId(), $product->getName(), $product->getPrice(), $product->getDescription(), $product->getCategory()->getId()),
             200
         );
     }

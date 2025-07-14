@@ -6,6 +6,8 @@ use App\Repository\UsersRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\CartItem;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 #[ORM\Table(name: '`user`')] 
@@ -24,6 +26,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: false)]
     private?string $password;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CartItem::class, cascade: ['persist', 'remove'])]
+    private Collection $cartItems;
+
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
@@ -90,6 +96,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
+    }
+
+    public function getCartItems(): Collection
+    {
+        return $this->cartItems;
+    }
+
+    public function setCartItems(Collection $cartItems): static
+    {
+        $this->cartItems = $cartItems;
+        return $this;
+    }
+    
+    public function clearCartItems(): static
+    {
+        foreach ($this->cartItems as $cartItem) {
+            $cartItem->setUser(null);
+        }
+        $this->cartItems->clear();
+        return $this;
     }
 
     
