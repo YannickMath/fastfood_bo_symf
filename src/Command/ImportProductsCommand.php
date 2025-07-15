@@ -52,24 +52,38 @@ class ImportProductsCommand extends Command
         }
         fclose($handle);
 
-        foreach ($products as $productsData) {
-            $existingProduct = $this->entityManager
-                ->getRepository(Product::class)
-                ->findOneBy(['name' => $productsData['name']]);
+foreach ($products as $productsData) {
+    $categoryId = (int) $productsData['category'];
+    $category = $this->entityManager
+        ->getRepository(Category::class)
+        ->find($categoryId);
 
-            if ($existingProduct) {
-                $io->warning(sprintf(
-                    'Le produit "%s" existe déjà, il ne sera pas importé.',
-                    $productsData['name']
-                ));
-                continue;
-            }
+    if (!$category) {
+        $io->warning(sprintf(
+            'La catégorie avec l\'ID %d n\'existe pas. Produit "%s" ignoré.',
+            $categoryId,
+            $productsData['name']
+        ));
+        continue;
+    }
 
-            // Récupération de la catégorie par ID
-            $categoryId = (int) $productsData['category'];
-            $category = $this->entityManager
-                ->getRepository(Category::class)
-                ->find($categoryId);
+    $existingProduct = $this->entityManager
+        ->getRepository(Product::class)
+        ->findOneBy(['name' => $productsData['name']]);
+    if ($existingProduct) {
+        $existingProduct->setDescription($productsData['description']);
+        $existingProduct->setPrice((int) $productsData['price']);
+        $existingProduct->setCategory($category);
+        $existingProduct->setUpdatedAt(new \DateTime());
+
+        $this->entityManager->persist($existingProduct);
+
+        $io->info(sprintf(
+            'Produit mis à jour : %s',
+            $productsData['name']
+        ));
+        continue;
+    }
 
             if (!$category) {
                 $io->warning(sprintf(
