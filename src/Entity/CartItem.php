@@ -22,7 +22,8 @@ class CartItem
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\ManyToOne(targetEntity: user::class, inversedBy: 'cardItems')]
+    #[ORM\ManyToOne(targetEntity: user::class, inversedBy: 'cartItems')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
     
