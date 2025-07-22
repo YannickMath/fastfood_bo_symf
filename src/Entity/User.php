@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\Common\Collections\Collection;
-use App\Entity\CartItem;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: UsersRepository::class)]
 #[ORM\Table(name: '`user`')] 
@@ -27,12 +27,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: false)]
     private?string $password;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CartItem::class, cascade: ['persist', 'remove'])]
-    private Collection $cartItems;
-
-
     #[ORM\Column(type: 'json')]
     private array $roles = [];
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Cart::class)]
+    private Collection $carts;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
@@ -42,6 +41,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        $this->carts = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTime();
     }
@@ -98,28 +98,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->username;
     }
 
-    public function getCartItems(): Collection
-    {
-        return $this->cartItems;
-    }
-
-    public function setCartItems(Collection $cartItems): static
-    {
-        $this->cartItems = $cartItems;
-        return $this;
-    }
-    
-    public function clearCartItems(): static
-    {
-        foreach ($this->cartItems as $cartItem) {
-            $cartItem->setUser(null);
-        }
-        $this->cartItems->clear();
-        return $this;
-    }
-
-    
-     /**
+    /**
      * Returns the roles granted to the user.
      *
      * @return string[]
@@ -172,4 +151,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getCarts(): Collection
+    {
+        return $this->carts;
+    }
+
+    public function setCarts(Collection $carts): static
+    {
+        $this->carts = $carts;
+
+        return $this;
+    }
+
+    public function addCart(Cart $cart): static
+    {
+        if (!$this->carts->contains($cart)) {
+            $this->carts[] = $cart;
+            $cart->setUser($this);
+        }
+
+        return $this;
+    }
+
+
 }

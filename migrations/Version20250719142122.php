@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250629133029 extends AbstractMigration
+final class Version20250719142122 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,7 +21,28 @@ final class Version20250629133029 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            CREATE TABLE category (id SERIAL NOT NULL, type VARCHAR(255) NOT NULL, PRIMARY KEY(id))
+            CREATE TABLE cart (id SERIAL NOT NULL, user_id INT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE INDEX IDX_BA388B7A76ED395 ON cart (user_id)
+        SQL);
+        $this->addSql(<<<'SQL'
+            COMMENT ON COLUMN cart.created_at IS '(DC2Type:datetime_immutable)'
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE TABLE cart_item (id SERIAL NOT NULL, product_id INT NOT NULL, cart_id INT NOT NULL, quantity INT NOT NULL, PRIMARY KEY(id))
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE INDEX IDX_F0FE25274584665A ON cart_item (product_id)
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE INDEX IDX_F0FE25271AD5CDBF ON cart_item (cart_id)
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE TABLE category (id SERIAL NOT NULL, type VARCHAR(255) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))
+        SQL);
+        $this->addSql(<<<'SQL'
+            COMMENT ON COLUMN category.created_at IS '(DC2Type:datetime_immutable)'
         SQL);
         $this->addSql(<<<'SQL'
             CREATE TABLE product (id SERIAL NOT NULL, category_id INT NOT NULL, name VARCHAR(255) NOT NULL, description TEXT NOT NULL, price INT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))
@@ -77,6 +98,15 @@ final class Version20250629133029 extends AbstractMigration
             CREATE TRIGGER notify_trigger AFTER INSERT OR UPDATE ON messenger_messages FOR EACH ROW EXECUTE PROCEDURE notify_messenger_messages();
         SQL);
         $this->addSql(<<<'SQL'
+            ALTER TABLE cart ADD CONSTRAINT FK_BA388B7A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE cart_item ADD CONSTRAINT FK_F0FE25274584665A FOREIGN KEY (product_id) REFERENCES product (id) NOT DEFERRABLE INITIALLY IMMEDIATE
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE cart_item ADD CONSTRAINT FK_F0FE25271AD5CDBF FOREIGN KEY (cart_id) REFERENCES cart (id) NOT DEFERRABLE INITIALLY IMMEDIATE
+        SQL);
+        $this->addSql(<<<'SQL'
             ALTER TABLE product ADD CONSTRAINT FK_D34A04AD12469DE2 FOREIGN KEY (category_id) REFERENCES category (id) NOT DEFERRABLE INITIALLY IMMEDIATE
         SQL);
     }
@@ -88,7 +118,22 @@ final class Version20250629133029 extends AbstractMigration
             CREATE SCHEMA public
         SQL);
         $this->addSql(<<<'SQL'
+            ALTER TABLE cart DROP CONSTRAINT FK_BA388B7A76ED395
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE cart_item DROP CONSTRAINT FK_F0FE25274584665A
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE cart_item DROP CONSTRAINT FK_F0FE25271AD5CDBF
+        SQL);
+        $this->addSql(<<<'SQL'
             ALTER TABLE product DROP CONSTRAINT FK_D34A04AD12469DE2
+        SQL);
+        $this->addSql(<<<'SQL'
+            DROP TABLE cart
+        SQL);
+        $this->addSql(<<<'SQL'
+            DROP TABLE cart_item
         SQL);
         $this->addSql(<<<'SQL'
             DROP TABLE category

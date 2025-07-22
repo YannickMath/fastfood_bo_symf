@@ -6,6 +6,7 @@ use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Category;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -27,6 +28,7 @@ class Product
     private Category $category;
 
     #[ORM\Column]
+    #[Groups(['cart:read'])]
     private int $price;
 
     #[ORM\Column(type: 'datetime_immutable')]

@@ -13,34 +13,42 @@ class CartItem
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $productName = null;
+    #[ORM\ManyToOne(inversedBy: 'cartItems')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cart $cart = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Product $product = null;
 
     #[ORM\Column]
     private ?int $quantity = null;
-
-    #[ORM\Column]
-    private ?float $price = null;
-
-    #[ORM\ManyToOne(targetEntity: user::class, inversedBy: 'cartItems')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
-
-    
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getProductName(): ?string
+    public function getCart(): ?Cart
     {
-        return $this->productName;
+        return $this->cart;
     }
 
-    public function setProductName(string $productName): static
+    public function setCart(?Cart $cart): static
     {
-        $this->productName = $productName;
+        $this->cart = $cart;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(Product $product): static
+    {
+        $this->product = $product;
 
         return $this;
     }
@@ -53,30 +61,6 @@ class CartItem
     public function setQuantity(int $quantity): static
     {
         $this->quantity = $quantity;
-
-        return $this;
-    }
-
-    public function getPrice(): ?float
-    {
-        return $this->price;
-    }
-
-    public function setPrice(float $price): static
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
 
         return $this;
     }

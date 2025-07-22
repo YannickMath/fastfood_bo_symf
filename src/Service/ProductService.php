@@ -43,7 +43,6 @@ class ProductService
     public function findProductByName(string $name): Product
     {
         $product = $this->productRepository->findOneBy(['name' => $name]);
-        dump($product);
         if (!$product) {
             throw new ProductNotFoundException();
         }
