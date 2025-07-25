@@ -143,7 +143,7 @@ class CartService
                 $cartItem->getId(),
                 $product->getId(),
                 $product->getName(),
-                $product->getPrice(),
+                (float) $product->getPrice(),
                 $cartItem->getQuantity()
             );
         }
@@ -153,10 +153,12 @@ class CartService
 
     public function clearCart(Cart $cart): void
     {
-        foreach ($cart->getCartItems() as $item) {
+        $items = $cart->getCartItems()->toArray();
+        foreach ($items as $item) {
             $cart->removeItem($item);
         }
 
         $this->entityManager->flush();
     }
+
 }

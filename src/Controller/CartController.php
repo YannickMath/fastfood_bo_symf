@@ -42,7 +42,6 @@ class CartController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
-        // dd("data",$data);
         $dto = CartInputDto::fromArray($data);
         
         $errors = $validator->validate($dto);
@@ -74,6 +73,44 @@ class CartController extends AbstractController
         }
 
         return $this->json(['status' => 'cleared']);
+    }
+
+    #[Route('/api/cart/item', methods: ['PUT'])]
+    public function updateCartItemQuantity(
+        #[CurrentUser] ?User $user,
+        Request $request,
+        CartService $cartService,
+        \Doctrine\ORM\EntityManagerInterface $entityManager
+    ): JsonResponse {
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $productId = $data['productId'] ?? null;
+
+        if (!$productId) {
+            return $this->json(['error' => 'Missing productId'], 400);
+        }
+
+        $cart = $cartService->getOrCreateCartForUser($user);
+        $item = $cart->getCartItems()->filter(fn($i) => $i->getProduct()->getId() === $productId)->first();
+
+        if (!$item) {
+            return $this->json(['error' => 'Item not found in cart'], 404);
+        }
+
+        $newQuantity = max(0, $item->getQuantity() - 1);
+
+        if ($newQuantity === 0) {
+            $cart->removeItem($item);
+        } else {
+            $item->setQuantity($newQuantity);
+        }
+        $entityManager->flush();
+
+        return $this->json(['status' => 'updated']);
+        return $this->json(['status' => 'updated']);
     }
 
     #[Route('/api/cart/items', methods: ['DELETE'])]
