@@ -160,4 +160,40 @@ class CartService
         $this->entityManager->flush();
     }
 
+    public function mergeCartWithSessionItems(User $user, CartInputDto $sessionDto): CartOutputDto
+    {
+        $cart = $this->getOrCreateCartForUser($user);
+
+        // Convert le panier actuel en tableau associatif [productId => CartItem]
+        $existingItems = [];
+        foreach ($cart->getCartItems() as $item) {
+            $existingItems[$item->getProduct()->getId()] = $item;
+        }
+
+        foreach ($sessionDto->items as $sessionItem) {
+            $product = $this->entityManager->getRepository(Product::class)->find($sessionItem->productId);
+
+            if (!$product) {
+                throw new \Exception("Product with ID {$sessionItem->productId} not found");
+            }
+
+            if (isset($existingItems[$sessionItem->productId])) {
+                // Ajoute la quantité au produit déjà présent dans le panier
+                $existingItem = $existingItems[$sessionItem->productId];
+                $existingItem->setQuantity($existingItem->getQuantity() + $sessionItem->quantity);
+            } else {
+                // Ajoute un nouveau produit
+                $newItem = new CartItem();
+                $newItem->setProduct($product);
+                $newItem->setQuantity($sessionItem->quantity);
+                $cart->addItem($newItem);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        return $this->buildCartOutputDto($cart);
+    }
+
+
 }

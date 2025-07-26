@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -44,7 +45,7 @@ class CartController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
-        $dto = CartInputDto::fromArray($data);
+        $dto = new CartInputDto($data);
         
         $errors = $validator->validate($dto);
         if (count($errors) > 0) {
@@ -136,49 +137,68 @@ class CartController extends AbstractController
     }
     
     #[Route('/api/cart/items', methods: ['POST'])]
-public function addCartItem(
-    #[CurrentUser] ?User $user,
-    Request $request,
-    CartService $cartService,
-    EntityManagerInterface $em,
-    ProductRepository $productRepository
-): JsonResponse {
-    if (!$user) {
-        return $this->json(['error' => 'Unauthorized'], 401);
+    public function addCartItem(
+        #[CurrentUser] ?User $user,
+        Request $request,
+        CartService $cartService,
+        EntityManagerInterface $em,
+        ProductRepository $productRepository
+    ): JsonResponse {
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $productId = $data['productId'] ?? null;
+        $quantity = $data['quantity'] ?? 1;
+
+        if (!$productId) {
+            return $this->json(['error' => 'Missing productId'], 400);
+        }
+
+        $product = $productRepository->find($productId);
+        if (!$product) {
+            return $this->json(['error' => 'Product not found'], 404);
+        }
+
+        $cart = $cartService->getOrCreateCartForUser($user);
+
+        $existingItem = $cart->getCartItems()->filter(
+            fn($item) => $item->getProduct()->getId() === $productId
+        )->first();
+
+        if ($existingItem) {
+            $existingItem->setQuantity($existingItem->getQuantity() + $quantity);
+        } else {
+            $newItem = new CartItem();
+            $newItem->setProduct($product);
+            $newItem->setQuantity($quantity);
+            $cart->addItem($newItem);
+        }
+
+        $em->flush();
+
+        return $this->json(['status' => 'item added']);
     }
 
-    $data = json_decode($request->getContent(), true);
-    $productId = $data['productId'] ?? null;
-    $quantity = $data['quantity'] ?? 1;
+        #[Route('/api/cart/merge', methods: ['POST'])]
+    public function mergeCart(
+        #[CurrentUser] ?User $user,
+        Request $request,
+        CartService $cartService,
+        SerializerInterface $serializer
+    ): JsonResponse {
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
 
-    if (!$productId) {
-        return $this->json(['error' => 'Missing productId'], 400);
+        /** @var CartInputDto $dto */
+        $dto = $serializer->deserialize($request->getContent(), CartInputDto::class, 'json');
+
+        $cartOutput = $cartService->mergeCartWithSessionItems($user, $dto);
+
+        return $this->json($cartOutput);
     }
 
-    $product = $productRepository->find($productId);
-    if (!$product) {
-        return $this->json(['error' => 'Product not found'], 404);
-    }
 
-    $cart = $cartService->getOrCreateCartForUser($user);
-
-    $existingItem = $cart->getCartItems()->filter(
-        fn($item) => $item->getProduct()->getId() === $productId
-    )->first();
-
-    if ($existingItem) {
-        $existingItem->setQuantity($existingItem->getQuantity() + $quantity);
-    } else {
-        $newItem = new CartItem();
-        $newItem->setProduct($product);
-        $newItem->setQuantity($quantity);
-        $cart->addItem($newItem);
-    }
-
-    $em->flush();
-
-    return $this->json(['status' => 'item added']);
-}
-
-        
 }
