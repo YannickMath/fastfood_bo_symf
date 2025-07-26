@@ -9,7 +9,7 @@ class CartItemOutputDto
     public function __construct(
         public int $productId,
         public string $productName,
-        public float $productPrice,
+        public int $productPrice,
         public int $quantity,
     ) {}
 
@@ -20,7 +20,7 @@ class CartItemOutputDto
         return new self(
             productId: $product->getId(),
             productName: $product->getName(),
-            productPrice: $product->getPrice(),
+             productPrice: (int) $product->getPrice(),
             quantity: $item->getQuantity()
         );
     }

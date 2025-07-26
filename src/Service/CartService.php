@@ -140,10 +140,9 @@ class CartService
             $product = $cartItem->getProduct();
 
             $items[] = new CartItemOutputDto(
-                $cartItem->getId(),
                 $product->getId(),
                 $product->getName(),
-                (float) $product->getPrice(),
+                (int) $product->getPrice(),
                 $cartItem->getQuantity()
             );
         }

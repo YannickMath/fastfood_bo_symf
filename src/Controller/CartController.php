@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Dto\Cart\Input\CartInputDto;
 use App\Dto\Cart\Input\CartItemInputDto;
 use App\Dto\Cart\Output\CartOutputDto;
+use App\Entity\CartItem;
 use App\Entity\User;
 use App\Repository\ProductRepository;
 use App\Service\CartService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -134,41 +136,49 @@ class CartController extends AbstractController
     }
     
     #[Route('/api/cart/items', methods: ['POST'])]
-    public function addCartItem(
-        #[CurrentUser] ?User $user,
-        Request $request,
-        ProductRepository $productRepository,
-        CartService $cartService
-    ): JsonResponse {
-        if (!$user) {
-            return $this->json(['error' => 'Unauthorized'], 401);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        
-        // Sécurité : attend uniquement un produitId + quantity
-        $productId = $data['productId'] ?? null;
-        $quantity = $data['quantity'] ?? 1;
-
-        if (!$productId) {
-            return $this->json(['error' => 'Missing productId'], 400);
-        }
-
-        $product = $productRepository->find($productId);
-        if (!$product) {
-            return $this->json(['error' => 'Product not found'], 404);
-        }
-
-        $cartItemDto = new CartItemInputDto(
-            quantity: $quantity,
-            productId: $product->getId(),
-        );
-
-        $cart = $cartService->getOrCreateCartForUser($user);
-        $updatedCart = $cartService->addOrUpdateItem($cart, $cartItemDto);
-
-        return $this->json(CartOutputDto::fromEntity($updatedCart));
-
+public function addCartItem(
+    #[CurrentUser] ?User $user,
+    Request $request,
+    CartService $cartService,
+    EntityManagerInterface $em,
+    ProductRepository $productRepository
+): JsonResponse {
+    if (!$user) {
+        return $this->json(['error' => 'Unauthorized'], 401);
     }
+
+    $data = json_decode($request->getContent(), true);
+    $productId = $data['productId'] ?? null;
+    $quantity = $data['quantity'] ?? 1;
+
+    if (!$productId) {
+        return $this->json(['error' => 'Missing productId'], 400);
+    }
+
+    $product = $productRepository->find($productId);
+    if (!$product) {
+        return $this->json(['error' => 'Product not found'], 404);
+    }
+
+    $cart = $cartService->getOrCreateCartForUser($user);
+
+    $existingItem = $cart->getCartItems()->filter(
+        fn($item) => $item->getProduct()->getId() === $productId
+    )->first();
+
+    if ($existingItem) {
+        $existingItem->setQuantity($existingItem->getQuantity() + $quantity);
+    } else {
+        $newItem = new CartItem();
+        $newItem->setProduct($product);
+        $newItem->setQuantity($quantity);
+        $cart->addItem($newItem);
+    }
+
+    $em->flush();
+
+    return $this->json(['status' => 'item added']);
+}
+
         
 }
