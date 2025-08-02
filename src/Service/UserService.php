@@ -111,24 +111,6 @@ class UserService
         return $user;
     }
 
-    // ## Method to check if a user is connected
-    // public function connectedUser(): ?User
-    // {
-    //     $token = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
-    //     if (!$token) {
-    //         return null;
-    //     }
-
-    //     $token = str_replace('Bearer ', '', $token);
-    //     $user = $this->usersRepository->findOneBy(['apiToken' => $token]);
-
-    //     if (!$user) {
-    //         return null;
-    //     }
-
-    //     return $user;
-    // }
-
     public function getAuthenticatedUser(): ?User
 {
     /** @var User|null $user */
@@ -138,7 +120,6 @@ class UserService
 }
 
 
-    ## Method to check if a user has admin rights
     public function isGranted($user): bool
     {
     if (!$user instanceof User) {

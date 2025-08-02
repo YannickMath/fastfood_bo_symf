@@ -178,11 +178,9 @@ class CartService
             }
 
             if (isset($existingItems[$sessionItem->productId])) {
-                // Ajoute la quantité au produit déjà présent dans le panier
                 $existingItem = $existingItems[$sessionItem->productId];
                 $existingItem->setQuantity($existingItem->getQuantity() + $sessionItem->quantity);
             } else {
-                // Ajoute un nouveau produit
                 $newItem = new CartItem();
                 $newItem->setProduct($product);
                 $newItem->setQuantity($sessionItem->quantity);
