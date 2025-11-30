@@ -11,9 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;  
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-
-
 final class ProductController extends AbstractController
 {
     // Route to get all products
@@ -45,7 +42,7 @@ final class ProductController extends AbstractController
     public function findProductByName(string $name, ProductService $productService, UserService $userService): JsonResponse
     {
         $user = $this->getUser();
-      
+
         $userService->isGranted($user);
         $product = $productService->findProductByName($name);
 
@@ -59,7 +56,6 @@ final class ProductController extends AbstractController
 
         return $this->json($dto);
     }
-
 
     // Route to create a new product
     #[Route('/api/product/create', methods: ['POST'])]
@@ -106,6 +102,7 @@ final class ProductController extends AbstractController
             foreach ($errors as $error) {
                 $errorsArray[$error->getPropertyPath()][] = $error->getMessage();
             }
+            return new JsonResponse(['errors' => $errorsArray], 400);
         }
 
         $product = $productService->updateProduct($id, $dto);
@@ -130,18 +127,17 @@ final class ProductController extends AbstractController
     #[Route('/api/products/category/{category}', methods: ['GET'])]
     public function getProductsByCategory(string $category, ProductService $productService): JsonResponse
         {
-            $category = 
             $products = $productService->getProductsByCategory($category);
 
             $dtos = [];
             foreach ($products as $product) {
-                $dtos[] = [
-                    'id' => $product->getId(),
-                    'name' => $product->getName(),
-                    'price' => $product->getPrice(),
-                    'description' => $product->getDescription(),
-                    'category' => $product->getCategory()
-                ];
+                $dtos[] = new ProductOutputDto(
+                    $product->getId(),
+                    $product->getName(),
+                    $product->getPrice(),
+                    $product->getDescription(),
+                    $product->getCategory()->getId()
+                );
             }
 
             return $this->json($dtos); 
