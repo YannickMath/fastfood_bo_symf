@@ -36,7 +36,7 @@ class ProductService
         if (!$product) {
             throw new ProductNotFoundException();
         }
-        return $this->productRepository->find($id);
+        return $product;
     } 
 
     ## Method to find a product by name
@@ -91,10 +91,19 @@ class ProductService
         $product->setName($dto->name);
         $product->setPrice($dto->price);
         $product->setDescription($dto->description ?? '');
-        $product->setCategory($dto->category ?? '');
+
+        // Fetch Category entity if category ID is provided
+        $category = null;
+        if ($dto->category) {
+            $category = $this->entityManager->getRepository(\App\Entity\Category::class)->find($dto->category);
+            if (!$category) {
+                throw new ProductWithNoCategoryException("Category with ID {$dto->category} not found.");
+            }
+        }
+        $product->setCategory($category);
         $product->setUpdatedAt(new \DateTime());
-      
-        if (empty($dto->name) || empty($dto->price) || empty($dto->category) || empty($dto->description)) {
+
+        if (empty($dto->name) || empty($dto->price) || empty($dto->category)) {
             throw new ProductCannotBeUpdatedException($dto->name);
         }
         $this->entityManager->persist($product);
