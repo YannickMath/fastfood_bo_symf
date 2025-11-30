@@ -40,8 +40,27 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Public endpoints - no authentication required
+        - { path: ^/api/user/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/user/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/products$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/product/\d+$, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/products/category, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/categories, roles: PUBLIC_ACCESS, methods: [GET] }
+
+        # Admin-only endpoints - product management
+        - { path: ^/api/product/create, roles: ROLE_ADMIN }
+        - { path: ^/api/product/update, roles: ROLE_ADMIN }
+        - { path: ^/api/product/delete, roles: ROLE_ADMIN }
+        - { path: ^/api/product/find, roles: ROLE_ADMIN }
+
+        # Admin-only endpoints - user management
+        - { path: ^/api/user/\d+$, roles: ROLE_ADMIN, methods: [DELETE] }
+        - { path: ^/api/user/\d+/update$, roles: ROLE_ADMIN, methods: [PUT] }
+        - { path: ^/api/user$, roles: ROLE_ADMIN, methods: [GET] }
+
+        # All other API endpoints require authentication
+        - { path: ^/api, roles: ROLE_USER }
 
 when@test:
     security:
