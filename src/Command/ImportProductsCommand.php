@@ -70,6 +70,7 @@ foreach ($products as $productsData) {
     $existingProduct = $this->entityManager
         ->getRepository(Product::class)
         ->findOneBy(['name' => $productsData['name']]);
+
     if ($existingProduct) {
         $existingProduct->setDescription($productsData['description']);
         $existingProduct->setPrice((int) $productsData['price']);
@@ -85,32 +86,23 @@ foreach ($products as $productsData) {
         continue;
     }
 
-            if (!$category) {
-                $io->warning(sprintf(
-                    'La catégorie avec l\'ID %d n\'existe pas. Produit "%s" ignoré.',
-                    $categoryId,
-                    $productsData['name']
-                ));
-                continue;
-            }
+    $product = new Product();
+    $product->setName($productsData['name']);
+    $product->setDescription($productsData['description']);
+    $product->setPrice((int) $productsData['price']);
+    $product->setCategory($category);
+    $product->setCreatedAt(new \DateTimeImmutable());
+    $product->setUpdatedAt(new \DateTime());
 
-            $product = new Product();
-            $product->setName($productsData['name']);
-            $product->setDescription($productsData['description']);
-            $product->setPrice((int) $productsData['price']);
-            $product->setCategory($category);
-            $product->setCreatedAt(new \DateTimeImmutable());
-            $product->setUpdatedAt(new \DateTime());
+    $this->entityManager->persist($product);
 
-            $this->entityManager->persist($product);
-
-            $io->info(sprintf(
-                'Produit importé : %s - %s€ - catégorie ID %d',
-                $productsData['name'],
-                $productsData['price'],
-                $categoryId
-            ));
-        }
+    $io->info(sprintf(
+        'Produit importé : %s - %s€ - catégorie ID %d',
+        $productsData['name'],
+        $productsData['price'],
+        $categoryId
+    ));
+}
 
         $this->entityManager->flush();
 
