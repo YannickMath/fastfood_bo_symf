@@ -1,6 +1,6 @@
-# FastFood API - Symfony Backend
+# Commerce API - Symfony Backend
 
-A professional RESTful API built with Symfony 7.3 for a fast-food e-commerce application. This backend provides comprehensive product management, user authentication, and shopping cart functionality.
+A professional RESTful API built with Symfony 7.3 for e-commerce applications. This backend provides comprehensive product management, user authentication, and shopping cart functionality.
 
 ## Overview
 
@@ -126,7 +126,7 @@ src/
 
     ```bash
     git clone <repository-url>
-    cd symfony_bo
+    cd commerce-api
     ```
 
 2. **Install dependencies**
@@ -318,4 +318,4 @@ This project is actively under development. New features and improvements are be
 
 ---
 
-**Note:** This is the backend API. It's designed to work with a React frontend application for a complete e-commerce solution.
+**Note:** This is the backend API. It's designed to work with any modern frontend application (React, Vue, Angular, etc.) for a complete e-commerce solution.

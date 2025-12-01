@@ -1,4 +1,6 @@
 {
+    "name": "commerce-api/backend",
+    "description": "Professional RESTful API for e-commerce applications built with Symfony 7.3",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
