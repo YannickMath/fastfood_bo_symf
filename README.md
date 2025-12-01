@@ -87,7 +87,7 @@ src/
 -   `GET /api/products/category/{category}` - Products by category
 -   `GET /api/categories` - List all categories
 -   `POST /api/user/register` - Register new user
--   `POST /api/user/login` - User login (returns JWT token)
+-   `POST /api/user/login_check` - User login (returns JWT token)
 
 ### Authenticated Endpoints (ROLE_USER)
 
@@ -165,7 +165,15 @@ src/
     php bin/console app:import-products
     ```
 
-7. **Start the development server**
+7. **Create an admin user (optional)**
+
+    First, register a user via the API or create one manually, then promote them to admin:
+
+    ```bash
+    php bin/console app:promote-admin user@example.com
+    ```
+
+8. **Start the development server**
     ```bash
     symfony server:start
     # Or
@@ -201,7 +209,7 @@ curl -X POST http://localhost:8000/api/user/register \
 ### Login
 
 ```bash
-curl -X POST http://localhost:8000/api/user/login \
+curl -X POST http://localhost:8000/api/user/login_check \
   -H "Content-Type: application/json" \
   -d '{"email":"john@example.com","password":"securePassword123"}'
 ```
@@ -284,6 +292,13 @@ php bin/console make:controller
 
 # Clear cache
 php bin/console cache:clear
+
+# Promote user to admin
+php bin/console app:promote-admin user@example.com
+
+# Import data from CSV
+php bin/console app:import-categories
+php bin/console app:import-products
 ```
 
 ## Code Quality

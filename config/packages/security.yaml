@@ -57,7 +57,7 @@ security:
         - { path: ^/api/product/find, roles: ROLE_ADMIN }
 
         # Admin-only endpoints - user management
-        - { path: ^/api/user/\d+$, roles: ROLE_ADMIN, methods: [DELETE] }
+        - { path: ^/api/user/\d+$, roles: ROLE_ADMIN, methods: [GET, DELETE] }
         - { path: ^/api/user/\d+/update$, roles: ROLE_ADMIN, methods: [PUT] }
         - { path: ^/api/user$, roles: ROLE_ADMIN, methods: [GET] }
 

@@ -113,7 +113,6 @@ class CartController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['status' => 'updated']);
-        return $this->json(['status' => 'updated']);
     }
 
     #[Route('/api/cart/items', methods: ['DELETE'])]
